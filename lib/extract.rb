@@ -1,9 +1,11 @@
 require 'nokogiri'
 require 'pandoc-ruby'
-require 'loofah'
+require 'sanitize'
 
 class LS
   attr_reader :data
+
+  class NotFound < Exception; end
 
   def initialize(data)
     @data = data
@@ -13,9 +15,21 @@ class LS
     @doc ||= Nokogiri::HTML(data)
   end
 
+  def sanitize_config
+    Sanitize::Config.merge(Sanitize::Config::RELAXED,
+      :elements        => Sanitize::Config::RELAXED[:elements] - ['span'] + ['img'],
+      :remove_contents => false
+    )
+  end
+
+  def sanitize(html)
+    Sanitize.fragment(html, sanitize_config)
+  end
+
   def title
-    input = doc.css('.LStitle').to_html
-    PandocRuby.new(input, :from => :html, :to => :mediawiki).convert
+    raw = doc.css('.LStitle').to_html
+    input = sanitize(raw)
+    PandocRuby.new(input, :from => :html, :to => :mediawiki).convert.strip
   end
 
   def purpose
@@ -60,11 +74,11 @@ class LS
   end
 
   def attribution
-    content_between(attribution_start, collateral_material_start)
+    content_between(attribution_start, collateral_material_start || -1)
   end
 
   def collateral_material
-    content_between(collateral_material_start, -1)
+    collateral_material_start ? content_between(collateral_material_start, -1) : ""
   end
 
   def mediawiki
@@ -87,7 +101,7 @@ private
   #   n.children.map |n|
   # end
 
-  def content_between(from, to)
+  def content_between(from, to, heading_first_para: false)
     input = content.children[from...to].map do |n|
       n.to_html rescue n.text
     end.join
@@ -103,14 +117,14 @@ private
 
   def purposes_start
     content.children.find_index do |child|
-      child['class'] == "MinSpecs" && child.text == 'WHY? Purposes'
-    end
+      child.text == 'WHY? Purposes'
+    end or raise "can't find purposes_start"
   end
 
   def tips_and_traps_start
     content.children.find_index do |child|
-      child['class'] == "MinSpecs" && child.text == 'Tips and Traps'
-    end
+      child['class'] == "MinSpecs" && child.text =~ /Tips and Traps/
+    end or raise "can't find tips_and_traps_start"
   end
 
   def riffs_and_variations_start
@@ -121,19 +135,19 @@ private
 
   def examples_start
     content.children.find_index do |child|
-      child['class'] == "MinSpecs" && child.text == 'Examples'
+      child.text == 'Examples'
     end
   end
 
   def attribution_start
     content.children.find_index do |child|
-      child['class'] == "body" && child.text =~ /Attribution/
+      child.text =~ /Attribution/
     end
   end
 
   def collateral_material_start
     content.children.find_index do |child|
-      child['class'] == "MinSpecs" && child.text == 'Collateral Material'
+      child['class'] == "MinSpecs" && child.text =~ /Collateral Material/
     end
   end
 

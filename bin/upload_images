@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+require 'mediawiki_api'
+require 'pp'
+require 'pathname'
+
+filename = "15_Insights.png"
+comment = "15% Insights slide"
+
+filename.gsub!(/ /, '_')
+
+
+class ImageUploader
+  attr_reader :base_path
+
+  def initialize
+    @base_path = Pathname.new(File.dirname(__FILE__)).expand_path + ".." + "data" + "md" + "storage"
+  end
+
+  def client
+    @client ||= begin
+      c = MediawikiApi::Client.new "https://liberatingstructures.miraheze.org/w/api.php"
+      c.log_in "Dgheath21@Content_uploader", ENV.fetch('LS_WIKI_PASSWORD')
+      c
+    end
+  end
+
+  def all_files
+    Dir[base_path + "**/*.*"]
+  end
+
+  def upload_all
+    all_files.each do |file|
+      puts "Uploading #{file}..."
+      begin
+        upload(File.basename(file), file, file)
+        puts "OK"
+      rescue MediawikiApi::ApiError => e
+        puts e.message
+      end
+    end
+  end
+
+  def upload(target_filename, path, comment)
+    file = Faraday::UploadIO.new(path.to_s, content_type_from_path(path))
+    client.action(
+      :upload,
+      filename: target_filename,
+      file: file,
+      comment: comment,
+      text: text,
+      ignorewarnings: ignorewarnings
+    )
+  end
+
+  def content_type_from_path(path)
+    case File.basename(path).split('.').last.downcase
+    when 'png'
+      return "image/png"
+    when 'jpg', 'jpeg'
+      return "image/jpeg"
+    else
+      raise "Can't infer image file type for #{path}"
+    end
+  end
+
+  def ignorewarnings
+    true
+  end
+
+  def text
+    nil
+  end
+end
+
+ImageUploader.new.upload_all

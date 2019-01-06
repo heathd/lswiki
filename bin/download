@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+require 'fileutils'
+
+structures = %w{
+1-1-2-4-all
+2-impromptu-networking
+3-nine-whys
+4-wicked-questions
+5-appreciative-interviews-ai
+6-making-space-with-triz
+7-15-solutions
+8-troika-consulting
+9-what-so-what-now-what-w
+10-discovery-action-dialogue
+11-shift-share
+12-2510-crowd-sourcing
+13-wise-crowds
+14-min-specs
+15-improv-prototyping
+16-helping-heuristics
+17-conversation-cafe
+18-users-experience-fishbowl
+19-heard-seen-respected-hsr
+20-drawing-together
+21-design-storyboards
+22-celebrity-interview
+23-social-network-webbing
+24-what-i-need-from-you-winfy
+25-open-space-technology
+26-generative-relationships-st
+27-agreement-certainty-matrix
+28-simple-ethnography
+29-integrated-autonomy
+30-critical-uncertainties
+31-ecocycle-planning
+32-panarchy
+33-purpose-to-practice-p2p
+design-elements
+ls-menu
+}
+
+structures = %w{
+28-simple-ethnography
+}
+DATA_DIR = File.dirname(__FILE__) + "/../data/"
+FileUtils.mkdir_p(DATA_DIR)
+Dir.chdir(DATA_DIR)
+
+structures.each do |struct|
+  puts "Getting #{struct}"
+  output = %x{wget -N -awget.log -O#{struct}.html http://www.liberatingstructures.com/#{struct}/}
+  sleep 1
+  if $?.success?
+    puts "OK"
+  else
+    puts "ERROR: #{output}"
+  end
+end

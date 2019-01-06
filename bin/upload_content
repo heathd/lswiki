@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+require 'mediawiki_api'
+require 'pp'
+require 'pathname'
+
+
+class ContentUploader
+  attr_reader :base_path
+
+  def initialize
+    @base_path = Pathname.new(File.dirname(__FILE__)).expand_path + ".." + "data" + "md"
+  end
+
+  def self.upload_all!
+    ContentUploader.new.upload_all!
+  end
+
+  def client
+    @client ||= begin
+      c = MediawikiApi::Client.new "https://liberatingstructures.miraheze.org/w/api.php"
+      c.log_in "Dgheath21@Content_uploader", ENV.fetch('LS_WIKI_PASSWORD')
+      c
+    end
+  end
+
+  def all_files
+    Dir[base_path + "*.md"]
+  end
+
+  def upload_all!
+    all_files.each do |file|
+      puts "Uploading #{file}..."
+      begin
+        client.create_page(File.basename(file, '.md'), File.read(file))
+        puts "OK"
+      rescue MediawikiApi::ApiError => e
+        puts e.message
+      end
+    end
+  end
+
+end
+
+ContentUploader.upload_all!

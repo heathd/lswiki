@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH << File.dirname(__FILE__) + "/../lib/"
+
+require 'extract'
+require 'pathname'
+
+data_dir = Pathname.new(File.dirname(__FILE__) + "/../data")
+output_dir = data_dir + "md"
+
+Dir["#{data_dir}/html/*.html"].each do |input_file|
+  puts "Processing #{input_file}..."
+  input_data = File.read(input_file)
+  output_data = extract(input_data).mediawiki
+
+  filename = input_file.split("/")[-1]
+  output_file = output_dir + filename
+  File.write(output_file, output_data)
+end
