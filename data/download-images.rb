@@ -1,0 +1,119 @@
+require 'cgi'
+
+URLS=%w{
+1%202%204%20All%20cycle%20small.jpg
+1%202%204%20all%20small.jpg
+15%20Insights.png
+25%2010%20Crowdsourcing.jpg
+25%2010%20idea%20from%20Japan.jpg
+5%20symbols.jpg
+AI%20interview%20Peru.jpg
+AI%20tapestry%20palm%20beach.jpg
+Agree%20certinty%20matrix.jpg
+Celeb%20Interveiw%20cm.jpg
+Crowdsourcing%20cloud.jpg
+Ethnography%20questions.jpg
+Fishbowl%20Austin%201.jpg
+Flocking%20Brazil%20med.jpg
+Generative%20Systems%20Panarchy.png
+Henri%27s%20journey%20drawing.jpg
+Image%202-3-16%20at%203.01%20PM%201.jpg
+Impromptu%20Network%20cm.jpg
+Keith%27s%20journey%20drawing.jpg
+OST%20short%20table.png
+Open%20Space%20cm.jpg
+PD%20button.jpg
+Parallel%20processing%20Seattle%20wksp.jpg
+Productive%20Questions.jpg
+Questions%20Hierarchy.jpg
+Scenarios.jpg
+Shift%20and%20Share.jpg
+Slide02.jpg
+Slide03.jpg
+Slide04.jpg
+Slide05.jpg
+Slide06.jpg
+Slide07.jpg
+Slide08.jpg
+Slide09.jpg
+Slide1.jpg
+Slide10.jpg
+Slide11.jpg
+Slide12.jpg
+Slide14.jpg
+Slide15.jpg
+Slide16.jpg
+Slide17.jpg
+Slide18.jpg
+Slide19.jpg
+Slide20.jpg
+Slide21.jpg
+Slide22.jpg
+Slide23.jpg
+Slide24.jpg
+Slide26.jpg
+Slide27.jpg
+Slide28.jpg
+Slide29.jpg
+Slide30.jpg
+Slide31.jpg
+Slide45.jpg
+Sources%20of%20Knowledge.jpg
+Troika%20keith.jpg
+Troika.jpg
+UX%20Fishbowl%20tatami.jpg
+User%20Group%20P2P.jpg
+WINFY%20laugh.jpg
+Webbing%20Via%20Hope.jpg
+Wicked%20Question%20cm.jpg
+Wise%20Crowd%20cm.jpg
+Wksp%20storyboard.jpg
+beth%20ethnographer.jpg
+cafe%20paris.jpg
+critical%20uncertainty.jpg
+icons/02_ImpromptuNetworking_BLK.png
+icons/04_Wicked-questions_01.png
+icons/05_AppreciativeInterviews_01.png
+icons/06_Triz.png
+icons/07_15-percent-solutions.png
+icons/08_Troika-consulting.png
+icons/09_What3.png
+icons/10_Discovery-and-action-dialog.png
+icons/11_Shift-and-share.png
+icons/12_25-to-10-crowdsourcing.png
+icons/13_Wise-crowds.png
+icons/14_Min-specs.png
+icons/15_Improv-prototyping_01.png
+icons/16_Helping-heuristics_01.png
+icons/17_Conversation-Cafe_01.png
+icons/18_User_Experience_Fishbowl.png
+icons/19_Heard_seen_respected_01.png
+icons/20_Drawing-Together.png
+icons/21_Design-storyboards_01.png
+icons/22_Celebrity-interview.png
+icons/23_Social-Network-Webbing_01.png
+icons/24_What_I_Need_From_You.png
+icons/25_Open-space.png
+icons/26_Generative-relationships_01.png
+icons/27_Agreement_Certainty_Matrix_01.png
+icons/28_Simple-Ethnography_01.png
+icons/29_Integrated-autonomy_01.png
+icons/30_Critical-uncertainties-for-scenario-planning_01.png
+icons/31_Ecocycle-Planning.png
+icons/32_Panarchy.png
+icons/33_Purpose-to-practice_01.png
+LS%20Menu%202.2%20xwide%204-19-13.jpg
+icons/LS%20menu%20V%202.2%204-19-13.pdf
+}
+
+URLS.each do |path|
+  file = CGI.unescape(path).gsub(' ', '_')
+  url = "http://www.liberatingstructures.com/storage/#{path}"
+  if File.exist?(file)
+    puts "#{file} exists"
+  else
+    puts "Fetching #{url} to '#{file}'"
+    %x{wget -O "#{file}" "#{url}"}
+    sleep 3
+  end
+end
